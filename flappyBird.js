@@ -9,6 +9,21 @@ const DEGREE = Math.PI/180;
 // Sprites
 const sprite = new Image();
 sprite.src = 'images/sprite.png'; 
+
+//load sounds
+//score
+const Score_sound =new Audio();
+Score_sound.src = 'sounds/score.mp3';
+
+const flap_sound =new Audio();
+flap_sound.src = 'sounds/fly.mp3';
+
+const hit_sound =new Audio();
+hit_sound.src = 'sounds/audio_sfx_hit.wav';
+
+const die_sound =new Audio();
+die_sound.src = 'sounds/audio_sfx_die.wav';
+
 //game state
 const state ={
     current : 0,
@@ -28,11 +43,28 @@ document.addEventListener('click', function(evt)
             bird.flap();
             break;
         case state.over:
+            let rect = cvs.getBoundingClientRect();
+            let clickX = evt.clientX -rect.left;
+            let clickY = evt.clientY -rect.top;
+            if(clickX> startBtn.x && clickX < startBtn.x+startBtn.w && clickY>= startBtn.y && clickY < startBtn.y+startBtn.h ){
+                pipes.reset();
+                bird.speedreset();
+                score.reset();
+            }
             state.current = state.getReady;
             break;
 
     }
 });
+// start button
+const startBtn = {
+    x : 120,
+    y:263,
+    w:83,
+    h:29,
+
+
+}
 //Background
 const bg ={ 
     sX: 0,
@@ -104,6 +136,8 @@ const bird= {
     },
     flap :function(){
         this.speed= -this.jump;
+        flap_sound.play();
+
     },
     update: function()
     {
@@ -124,6 +158,8 @@ const bird= {
                 if(state.current == state.game)
                 {
                     state.current = state.over; 
+                    hit_sound.play();
+                    die_sound.play();
                 }
                
             }
@@ -138,6 +174,9 @@ const bird= {
 
             }
         }
+    },
+    speedreset: function(){
+        this.speed=0;
     }
 
 }
@@ -189,10 +228,14 @@ const pipes ={
             if(bird.x+bird.radius> p.x && bird.x-bird.radius< p.x+this.w && bird.y+bird.radius>p.y && bird.y-bird.radius <p.y+this.h)
             {
                 state.current= state.over;
+                hit_sound.play();
+                    die_sound.play();
             }
             if(bird.x+bird.radius> p.x && bird.x-bird.radius< p.x+this.w && bird.y+bird.radius>bottomPipeYPos && bird.y-bird.radius < bottomPipeYPos+this.h)
             {
                 state.current= state.over;
+                hit_sound.play();
+                    die_sound.play();
             }
             p.x -= this.dx;
             if (p.x+this.w <=0)
@@ -201,10 +244,14 @@ const pipes ={
                 score.value += 1;
                 score.best = Math.max(score.value, score.best);
                 localStorage.setItem("best", score.best);
+                Score_sound.play();
 
 
             }
         }
+    },
+    reset:function(){
+        this.position =[];
     }
 }
 //Get ready
@@ -272,6 +319,9 @@ const score ={
             
         }
 
+    },
+    reset :function(){
+        this.value =0; 
     }
 }
 
