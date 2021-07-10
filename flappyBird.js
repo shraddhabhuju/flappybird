@@ -142,19 +142,49 @@ const bird= {
 }
 //pipes
 const pipes ={
+    position:[],
     bottom:{
+        sX:502,
+        sY:0,
+
 
     },
     top:{
+        sX :553,
+        sY : 0,
 
     },
-    w:,
-    h:,
-    gap:,
-    dx:,
+    w:53,
+    h:400,
+    gap:85,
+    dx:2,
+    maxYPos: -150,
     
     draw : function(){
+        for(let i=0;i< this.position.length; i++)
+        {
+            let p=this.position[i];
+            let topYPos =p.y;
+            let bottomYPos = p.y+this.h+this.gap;
+            ctx.drawImage(sprite, this.top.sX,this.top.sY,this.w,this.h,p.x,topYPos,this.w,this.h);
+            ctx.drawImage(sprite, this.bottom.sX,this.bottom.sY,this.w,this.h,p.x,bottomYPos,this.w,this.h);
 
+        }
+    },
+    update: function(){
+        if(state.current !== state.game)return;
+        if(frames%100 == 0){
+            this.position.push({
+                x:cvs.width,
+                y:this.maxYPos *(Math.random()+1)
+            });
+
+        }
+        for(let i=0; i<this.position.length;i++)
+        {
+            let p = this.position[i];
+            p.x -= this.dx;
+        }
     }
 }
 //Get ready
@@ -203,10 +233,12 @@ function draw()
     ctx.fillStyle = '#96e0e0';
     ctx.fillRect(0,0,cvs.width,cvs.height)
     bg.draw();
+    pipes.draw();
     fg.draw();
     bird.draw();
     getReady.draw();
     gameOver.draw();
+    
 }
 
 //Update frames
@@ -214,6 +246,7 @@ function update()
 {
     bird.update();
     fg.update();
+    pipes.update();
 }
 
 //Loop function
